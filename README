@@ -1,0 +1,21 @@
+Chrome Bookmarks Command Line Interface (CBCLI)
+
+Provide a basic cmdline for searching chrome bookmarks and opening the links directly.
+
+To search your bookmarks use
+
+cbcli -r regex strings ...
+cbcli -s string keyword token ...
+
+After that, it will display a list of name and their urls.
+
+To open them, call
+
+cbcli -o <number> 
+
+
+Possible extension to the project
+(a.k.a thigs to add when I am bored)
+1. List the last search history
+2. Color the search result
+3. Extension to linux/window (if I am really bored)
