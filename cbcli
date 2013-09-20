@@ -1,14 +1,75 @@
 #!/usr/bin/env python
 import os
 import json
+import sys
+import getopt
 from cbcli_logic import parse
+from cbcli_logic import openlink
+from cbcli_logic import search
+from cbcli_logic import cache
+from cbcli_logic import loadCache
+def printUsage():
+    print "cbcli [r|s(default)] search strings"
+    print "     r : regex mode"
+    print "     s : string mode" 
+
+def foundResult(result):
+    listresult = []
+    i = 0
+    for key, value in result.items() :
+        print i , "." , value["name"] , "-" , value["url"]
+        listresult.append(value)
+        i+=1
+    cache(listresult)
 if __name__ == "__main__" :
+    opts , args = getopt.getopt(sys.argv[1:], "rso:", )
+    regex = False
+    stringTok = True
+    openmode=False
+    opennumber=0
+    for opt , arg in opts :
+        if opt == "-r" :
+            regex = True
+        elif opt == '-s' :
+            stringTok = True
+        elif opt == '-o' :
+            try:
+                opennumber = int(arg)
+                openmode = True
+            except ValueError:
+                print "Invalid number"
+
+    if(stringTok and regex) :
+        printUsage()
+        sys.exit(1)
+    
     path = "~/Library/Application Support/Google/Chrome/Default/Bookmarks"
     path = os.path.expanduser(path)
-    print path
     json_data = open(path).read()
     data = json.loads(json_data)
     parsed = parse(data)
+    if openmode :
+        cachedResult = loadCache()
+        if len(cachedResult) <= opennumber :
+            print "number not valid"
+        else :
+            openlink(cachedResult[opennumber])
+    elif stringTok :
+        result = {} 
+        for item in args :
+            # I might need to escape the character but whatever.
+            # another thing I can do here, is count how many words hit and
+            # score the result accordingly.
+            tmpresult = search(parsed, item)
+            result.update(tmpresult)
+        
+        foundResult(result)
+    elif regex :
+        result = {}
+        searchString = " ".join(args)
+        result = search(parsed, searchString)
+        foundResult(result)
+    else :
+        printUsage()
 
-    for p in parsed :
-        print p["parent"] + p["name"]
+

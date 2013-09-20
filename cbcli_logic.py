@@ -11,6 +11,54 @@
 # .7 url    - url to open.
 # this parse should return each object individually as a dict
 # with an additional attribute , the abs path to the bookmark.
+import re
+import os
+root = os.path.dirname(os.path.abspath(__file__))
+
+def loadCache() :
+    actualpath = os.path.join(root, "cached")
+    if os.path.isfile(actualpath) :
+        fin = open(actualpath, "r")
+        l = fin.readlines()
+        final = []
+        for item in l :
+            final.append(item.strip())
+        fin.close()
+        return final
+    else :
+        return []
+
+def cache(result):
+    actualpath = os.path.join(root, "cached")
+    if os.path.isfile(actualpath):
+        os.remove(actualpath)
+    fout = open(actualpath, "w")
+    for value in result:
+        fout.write(value["url"] + "\n")
+    fout.close()
+# this will open with default browser
+def macopen(link, background):
+    cmd = "open " + link + " "
+    if background :
+        cmd += "-g"
+    os.system(cmd)
+
+def openlink(link, background=False) :
+    # if you want to extend to linux or other os, you can check it here.
+    macopen(link, background)
+
+# change this function to "upgrade" the search function
+def match(data, searchstring):
+    return re.search(searchstring, data["name"]) != None
+
+def search(data, searchstring):
+    l = {}
+    for d in data:
+        if match(d, searchstring) :
+            l[d["id"]] = d
+    return l
+
+
 def createChild(data, parent):
     childData = {}
     childData["name"] = data["name"]
