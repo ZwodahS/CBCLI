@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+import os
+import json
+from cbcli_logic import parse
+if __name__ == "__main__" :
+    path = "~/Library/Application Support/Google/Chrome/Default/Bookmarks"
+    path = os.path.expanduser(path)
+    print path
+    json_data = open(path).read()
+    data = json.loads(json_data)
+    parsed = parse(data)
+
+    for p in parsed :
+        print p["parent"] + p["name"]
