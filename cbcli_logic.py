@@ -15,6 +15,9 @@ import re
 import os
 root = os.path.dirname(os.path.abspath(__file__))
 
+# load the cached and return the list of urls that was last searched.
+# I want to keep both the url and name and other information in the future,
+# to allow me to display the last search results but for now this will do
 def loadCache() :
     actualpath = os.path.join(root, "cached")
     if os.path.isfile(actualpath) :
@@ -27,7 +30,8 @@ def loadCache() :
         return final
     else :
         return []
-
+# cache the result and write it to the cached file
+# the cached file is used when opening a link
 def cache(result):
     actualpath = os.path.join(root, "cached")
     if os.path.isfile(actualpath):
@@ -36,28 +40,48 @@ def cache(result):
     for value in result:
         fout.write(value["url"] + "\n")
     fout.close()
+
 # this will open with default browser
+# this is the mac function to open a link
+# create one for each OS that is needed
 def macopen(link, background):
     cmd = "open " + link + " "
     if background :
         cmd += "-g"
     os.system(cmd)
 
+# public call to open a link
+# switch to different os if necessary.
 def openlink(link, background=False) :
     # if you want to extend to linux or other os, you can check it here.
     macopen(link, background)
 
-# change this function to "upgrade" the search function
+##### all the match functions should be put into this area #####
+
+# generic match for regex
 def match(data, searchstring):
     return re.search(searchstring, data["name"]) != None
 
-def search(data, searchstring):
+# regex match but convert all to lower case first.
+def matchignorecase(data, searchstring):
+    return re.search(searchstring.lower(), data["name"].lower()) != None
+
+#################################################################
+# This is for the string search option .
+def stringsearch(data, searchstring):
+    return search(data, searchstring, matchignorecase)
+
+# the generic search function. 
+# pass in the match function to use.
+def search(data, searchstring, matchfunction=match):
     l = {}
     for d in data:
-        if match(d, searchstring) :
+        if matchfunction(d, searchstring) :
             l[d["id"]] = d
     return l
 
+
+################ JSON parsing code ##############################
 
 def createChild(data, parent):
     childData = {}
@@ -80,6 +104,12 @@ def parseRecursive(data, parent) :
     return output
 
 # parse the whole json file and return a list of url objects.
+# This is the main parse function
+# returns a list of dictionary with
+#   "name"   : for the name of the bookmark
+#   "url"    : url of the bookmark
+#   "id"     : id given to this by chrome
+#   "parent" : the parent of this bookmark, a.k.a. the directory path in the bookmark manager.
 def parse(data) :
     # checksum = data["checksum"] 
     # version = data["version"]

@@ -16,6 +16,11 @@ cbcli -o <number>
 
 Possible extension to the project
 (a.k.a things to add when I am bored)
-1. List the last search history
-2. Color the search result
-3. Extension to linux/window (if I am really bored)
+- List the last search history
+- Color the search result
+- Extension to linux/window (if I am really bored)
+- Bookmark management function
+    - CRUD bookmarks from cli
+    - Match certain keywords and move/duplicate them into a folder
+- Cache the parsed data, and use checksum to detect if there is changes. This will be useful only if the bookmarks get too big and parsing takes too long. For now, it really doesn't matter.
+

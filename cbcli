@@ -6,6 +6,7 @@ import getopt
 from cbcli_logic import parse
 from cbcli_logic import openlink
 from cbcli_logic import search
+from cbcli_logic import stringsearch
 from cbcli_logic import cache
 from cbcli_logic import loadCache
 def printUsage():
@@ -13,6 +14,7 @@ def printUsage():
     print "     r : regex mode"
     print "     s : string mode" 
 
+# display and cache the result.
 def foundResult(result):
     listresult = []
     i = 0
@@ -21,6 +23,9 @@ def foundResult(result):
         listresult.append(value)
         i+=1
     cache(listresult)
+
+
+
 if __name__ == "__main__" :
     opts , args = getopt.getopt(sys.argv[1:], "rso:", )
     regex = False
@@ -42,28 +47,37 @@ if __name__ == "__main__" :
     if(stringTok and regex) :
         printUsage()
         sys.exit(1)
-    
+    # this is the path to the bookmarks on most macos system.
+    # This probably can be taken out into a config. 
+    # It is also possible to write a function to let the user set their bookmark file
+    # or even autodetect.
     path = "~/Library/Application Support/Google/Chrome/Default/Bookmarks"
     path = os.path.expanduser(path)
+
+    # open and read the json data, then parse it
     json_data = open(path).read()
     data = json.loads(json_data)
     parsed = parse(data)
+    # if the -o option is set, we just try to open the number specified by the user.
+    # If possible, perhaps display the urls and names of the last search if the number is not valid
     if openmode :
         cachedResult = loadCache()
         if len(cachedResult) <= opennumber :
             print "number not valid"
         else :
             openlink(cachedResult[opennumber])
+    # if string mode, then we want to find the url that contains all the strings.
+    # Possible to make it such it handles OR case, but that is really not important, since
+    # that use case is quite useless IMO.
     elif stringTok :
         result = {} 
+        searchdata = parsed
         for item in args :
             # I might need to escape the character but whatever.
-            # another thing I can do here, is count how many words hit and
-            # score the result accordingly.
-            tmpresult = search(parsed, item)
-            result.update(tmpresult)
-        
+            result = stringsearch(searchdata, item)
+            searchdata = result.values()
         foundResult(result)
+    # regex mode, just search display
     elif regex :
         result = {}
         searchString = " ".join(args)
