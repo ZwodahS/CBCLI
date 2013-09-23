@@ -9,27 +9,76 @@ from cbcli_logic import search
 from cbcli_logic import stringsearch
 from cbcli_logic import cache
 from cbcli_logic import loadCache
-def printUsage():
+import color
+from regex import parallelmatch
+from regex import regmatch
+def print_usage():
     print "cbcli [r|s(default)] search strings"
     print "     r : regex mode"
     print "     s : string mode" 
 
+# The function to color the name of the bookmark based on the string tokens
+# 
+def color_str(text, stringtokens) :
+    # define the new string tokens
+    newstringtokens = []
+    for s in stringtokens :
+        newstringtokens.append(s.lower())
+    # set the target
+    stringtokens = newstringtokens
+    # use the api to match the string tokens. 
+    # I really forget how it works now, since it was coded a year + ago..
+    # Just let it do its magic.
+    (segments, matchcodes) = parallelmatch(text.lower(), stringtokens)
+    # store the matched text
+    match_text = ""
+    i = 0
+    for (segment, matchcode) in zip(segments, matchcodes) :
+        # the output string is based on the origin text, but the string match
+        # is based on the string.lower(), so we need to print the original text
+        if(matchcode != -1) :
+            match_text += color.wrap_color(text[i:i+len(segment)], color.green)
+        else :
+            match_text += text[i:i+len(segment)]
+        i+=len(segment)
+    return match_text
+
+def color_regex(text, regex) :
+    (segments, matchcodes) = regmatch(text, regex)
+    match_text = ""
+    for (segment, matchcode) in zip(segments, matchcodes) :
+        if(matchcode != -1) :
+            match_text += color.wrap_color(segment, color.green)
+        else :
+            match_text += segment
+    return match_text
+
+
 # display and cache the result.
-def foundResult(result):
+def display_results_str(result, args):
     listresult = []
     i = 0
     for key, value in result.items() :
-        print i , "." , value["name"] , "-" , value["url"]
+        match_text = color_str(value["name"], args)
+        print color.wrap_color("["+str(i)+"]", color.yellow, True,False)  ,  match_text, "-" , color.wrap_color(value["url"], color.blue)
         listresult.append(value)
         i+=1
     cache(listresult)
 
-
+def display_results_regex(result, regex) :
+    listresult = []
+    i = 0
+    for key, value in result.items() :
+        match_text = color_regex(value["name"], regex)
+        print color.wrap_color("["+str(i)+"]", color.yellow, True,False)  ,  match_text, "-" , color.wrap_color(value["url"], color.blue)
+        listresult.append(value)
+        i+=1
+    cache(listresult)
 
 if __name__ == "__main__" :
     opts , args = getopt.getopt(sys.argv[1:], "rso:", )
     regex = False
-    stringTok = True
+    stringTok = False
     openmode=False
     opennumber=0
     for opt , arg in opts :
@@ -45,7 +94,7 @@ if __name__ == "__main__" :
                 print "Invalid number"
 
     if(stringTok and regex) :
-        printUsage()
+        print_usage()
         sys.exit(1)
     # this is the path to the bookmarks on most macos system.
     # This probably can be taken out into a config. 
@@ -69,21 +118,21 @@ if __name__ == "__main__" :
     # if string mode, then we want to find the url that contains all the strings.
     # Possible to make it such it handles OR case, but that is really not important, since
     # that use case is quite useless IMO.
-    elif stringTok :
+    elif regex :
+        result = {}
+        searchString = " ".join(args)
+        result = search(parsed, searchString)
+        display_results_regex(result, searchString)
+    elif len(args) :
         result = {} 
         searchdata = parsed
         for item in args :
             # I might need to escape the character but whatever.
             result = stringsearch(searchdata, item)
             searchdata = result.values()
-        foundResult(result)
+        display_results_str(result, args)
     # regex mode, just search display
-    elif regex :
-        result = {}
-        searchString = " ".join(args)
-        result = search(parsed, searchString)
-        foundResult(result)
     else :
-        printUsage()
+        print_usage()
 
 
