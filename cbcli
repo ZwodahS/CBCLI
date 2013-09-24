@@ -76,26 +76,23 @@ def display_results_regex(result, regex) :
     cache(listresult)
 
 if __name__ == "__main__" :
-    opts , args = getopt.getopt(sys.argv[1:], "rso:", )
-    regex = False
-    stringTok = False
-    openmode=False
+    opts , args = getopt.getopt(sys.argv[1:], "rso:i", )
+    mode = "string"
     opennumber=0
     for opt , arg in opts :
         if opt == "-r" :
-            regex = True
+            mode = "regex"
         elif opt == '-s' :
-            stringTok = True
+            mode = "string"
+        elif opt == "-i" :
+            mode = "info"
         elif opt == '-o' :
             try:
                 opennumber = int(arg)
-                openmode = True
+                mode = "open"
             except ValueError:
                 print "Invalid number"
 
-    if(stringTok and regex) :
-        print_usage()
-        sys.exit(1)
     # this is the path to the bookmarks on most macos system.
     # This probably can be taken out into a config. 
     # It is also possible to write a function to let the user set their bookmark file
@@ -106,10 +103,10 @@ if __name__ == "__main__" :
     # open and read the json data, then parse it
     json_data = open(path).read()
     data = json.loads(json_data)
-    parsed = parse(data)
+    (parsed, checksum, version) = parse(data)
     # if the -o option is set, we just try to open the number specified by the user.
     # If possible, perhaps display the urls and names of the last search if the number is not valid
-    if openmode :
+    if mode == "open" :
         cachedResult = loadCache()
         if len(cachedResult) <= opennumber :
             print "number not valid"
@@ -118,12 +115,16 @@ if __name__ == "__main__" :
     # if string mode, then we want to find the url that contains all the strings.
     # Possible to make it such it handles OR case, but that is really not important, since
     # that use case is quite useless IMO.
-    elif regex :
+    elif mode == "regex" :
         result = {}
         searchString = " ".join(args)
         result = search(parsed, searchString)
         display_results_regex(result, searchString)
-    elif len(args) :
+    elif mode == "info" :
+        print "current checksum of bookmark : " , checksum
+        print "current version  of bookmark : " , version
+        print "bookmark location : " , path
+    elif len(args) > 0:
         result = {} 
         searchdata = parsed
         for item in args :

@@ -111,8 +111,8 @@ def parseRecursive(data, parent) :
 #   "id"     : id given to this by chrome
 #   "parent" : the parent of this bookmark, a.k.a. the directory path in the bookmark manager.
 def parse(data) :
-    # checksum = data["checksum"] 
-    # version = data["version"]
+    checksum = data["checksum"] 
+    version = data["version"]
     roots = data["roots"]
     l = []
     for (k, v) in roots.items() :
@@ -121,5 +121,5 @@ def parse(data) :
         # .2 synced
         if(k != "meta_info" and k != "synced") :
             l = l + parseRecursive(v, "root/"+k)    
-    return l
+    return (l, checksum, version)
 
