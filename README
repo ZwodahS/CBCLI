@@ -4,8 +4,8 @@ Provide a basic cmdline for searching chrome bookmarks and opening the links dir
 
 To search your bookmarks use
 
-cbcli -r regex strings ...
-cbcli -s string keyword token ...
+cbcli -r regex
+cbcli string1 string2
 
 After that, it will display a list of name and their urls.
 
@@ -13,11 +13,13 @@ To open them, call
 
 cbcli -o <number> 
 
+Other options includes
+-i : display your bookmarks information
+-d : display directory path when displaying the results.
 
 Possible extension to the project
 (a.k.a things to add when I am bored)
 - List the last search history
-- Color the search result
 - Extension to linux/window (if I am really bored)
 - Bookmark management function
     - CRUD bookmarks from cli
