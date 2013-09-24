@@ -55,35 +55,44 @@ def color_regex(text, regex) :
 
 
 # display and cache the result.
-def display_results_str(result, args):
+def display_results_str(result, args, displaypath):
     listresult = []
     i = 0
     for key, value in result.items() :
         match_text = color_str(value["name"], args)
-        print color.wrap_color("["+str(i)+"]", color.yellow, True,False)  ,  match_text, "-" , color.wrap_color(value["url"], color.blue)
+        parent = ""
+        if displaypath :
+            parent = color.wrap_color(value["parent"]+"/", color.blue)
+        print color.wrap_color("["+str(i)+"]", color.yellow, True,False)  , parent , match_text, "-" , color.wrap_color(value["url"][:40] + "....", color.blue)
         listresult.append(value)
         i+=1
     cache(listresult)
 
-def display_results_regex(result, regex) :
+def display_results_regex(result, regex, displaypath) :
     listresult = []
     i = 0
     for key, value in result.items() :
         match_text = color_regex(value["name"], regex)
-        print color.wrap_color("["+str(i)+"]", color.yellow, True,False)  ,  match_text, "-" , color.wrap_color(value["url"], color.blue)
+        parent = ""
+        if displaypath :
+            parent = color.wrap_color(value["parent"]+"/", color.blue)
+        print color.wrap_color("["+str(i)+"]", color.yellow, True,False)  , parent , match_text, "-" , color.wrap_color(value["url"][:40] + "....", color.blue)
         listresult.append(value)
         i+=1
     cache(listresult)
 
 if __name__ == "__main__" :
-    opts , args = getopt.getopt(sys.argv[1:], "rso:i", )
+    opts , args = getopt.getopt(sys.argv[1:], "rso:id", )
     mode = "string"
+    displaypath = False
     opennumber=0
     for opt , arg in opts :
         if opt == "-r" :
             mode = "regex"
         elif opt == '-s' :
             mode = "string"
+        elif opt == '-d' :
+            displaypath = True
         elif opt == "-i" :
             mode = "info"
         elif opt == '-o' :
@@ -119,7 +128,7 @@ if __name__ == "__main__" :
         result = {}
         searchString = " ".join(args)
         result = search(parsed, searchString)
-        display_results_regex(result, searchString)
+        display_results_regex(result, searchString, displaypath)
     elif mode == "info" :
         print "current checksum of bookmark : " , checksum
         print "current version  of bookmark : " , version
@@ -131,7 +140,7 @@ if __name__ == "__main__" :
             # I might need to escape the character but whatever.
             result = stringsearch(searchdata, item)
             searchdata = result.values()
-        display_results_str(result, args)
+        display_results_str(result, args, displaypath)
     # regex mode, just search display
     else :
         print_usage()
