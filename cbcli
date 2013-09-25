@@ -9,6 +9,7 @@ from cbcli_logic import search
 from cbcli_logic import stringsearch
 from cbcli_logic import cache
 from cbcli_logic import loadCache
+from cbcli_logic import tag_filter
 import color
 from regex import parallelmatch
 from regex import regmatch
@@ -82,10 +83,11 @@ def display_results_regex(result, regex, displaypath) :
     cache(listresult)
 
 if __name__ == "__main__" :
-    opts , args = getopt.getopt(sys.argv[1:], "rso:id", )
+    opts , args = getopt.getopt(sys.argv[1:], "rso:idt:", )
     mode = "string"
     displaypath = False
     opennumber=0
+    tags = []
     for opt , arg in opts :
         if opt == "-r" :
             mode = "regex"
@@ -93,6 +95,8 @@ if __name__ == "__main__" :
             mode = "string"
         elif opt == '-d' :
             displaypath = True
+        elif opt == '-t' :
+            tags.append(arg)
         elif opt == "-i" :
             mode = "info"
         elif opt == '-o' :
@@ -138,10 +142,13 @@ if __name__ == "__main__" :
         searchdata = parsed
         for item in args :
             # I might need to escape the character but whatever.
-            result = stringsearch(searchdata, item)
+            result = stringsearch(searchdata, item, tags)
             searchdata = result.values()
         display_results_str(result, args, displaypath)
     # regex mode, just search display
+    elif len(tags) != 0  :
+        result = tag_filter(parsed, tags)
+        display_results_str(result, args, displaypath)
     else :
         print_usage()
 

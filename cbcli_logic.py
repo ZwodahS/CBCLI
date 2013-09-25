@@ -67,9 +67,23 @@ def matchignorecase(data, searchstring):
     return re.search(searchstring.lower(), data["name"].lower()) != None
 
 #################################################################
+# tag list is always a AND operator now
+def tag_filter(data, taglist) :
+    if len(taglist) == 0 :
+        return data
+    
+    newdata = {}
+    for d in data :
+        tokens = d["name"].split()
+        for t in taglist :
+            if "#"+t in tokens :
+                newdata[d["id"]] = d
+                break
+    return newdata
+
 # This is for the string search option .
-def stringsearch(data, searchstring):
-    return search(data, searchstring, matchignorecase)
+def stringsearch(data, searchstring, taglist = []):
+    return search(tag_filter(data, taglist), searchstring, matchignorecase)
 
 # the generic search function. 
 # pass in the match function to use.
