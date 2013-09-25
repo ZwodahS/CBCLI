@@ -14,9 +14,10 @@ import color
 from regex import parallelmatch
 from regex import regmatch
 def print_usage():
-    print "cbcli [r|s(default)] search strings"
+    print "cbcli -[r|s(default)] search strings [-t <tagname>]"
     print "     r : regex mode"
     print "     s : string mode" 
+    print "     t : search tag (#tagname) "
 
 # The function to color the name of the bookmark based on the string tokens
 # 
@@ -83,7 +84,11 @@ def display_results_regex(result, regex, displaypath) :
     cache(listresult)
 
 if __name__ == "__main__" :
-    opts , args = getopt.getopt(sys.argv[1:], "rso:idt:", )
+    try :
+        opts , args = getopt.getopt(sys.argv[1:], "rso:idt:", )
+    except getopt.GetoptError:
+        print_usage()
+        sys.exit(1)
     mode = "string"
     displaypath = False
     opennumber=0
@@ -105,7 +110,6 @@ if __name__ == "__main__" :
                 mode = "open"
             except ValueError:
                 print "Invalid number"
-
     # this is the path to the bookmarks on most macos system.
     # This probably can be taken out into a config. 
     # It is also possible to write a function to let the user set their bookmark file
