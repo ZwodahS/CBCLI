@@ -94,6 +94,20 @@ def search(data, searchstring, matchfunction=match):
             l[d["id"]] = d
     return l
 
+def findtags(data) :
+    hashtags = {}
+    for d in data :
+        tokens = d["name"].split()
+        for token in tokens :
+            if token[0] == "#" :
+                if token[1:] in hashtags :
+                    hashtags[token[1:]] += 1
+                else :
+                    hashtags[token[1:]] = 1
+    return hashtags
+
+
+
 
 ################ JSON parsing code ##############################
 

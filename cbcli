@@ -10,6 +10,7 @@ from cbcli_logic import stringsearch
 from cbcli_logic import cache
 from cbcli_logic import loadCache
 from cbcli_logic import tag_filter
+from cbcli_logic import findtags
 import color
 from regex import parallelmatch
 from regex import regmatch
@@ -83,9 +84,13 @@ def display_results_regex(result, regex, displaypath) :
         i+=1
     cache(listresult)
 
+def display_tag_list(taglist) :
+    for name, count in taglist.items() :
+        print name , "("+str(count)+")"
+
 if __name__ == "__main__" :
     try :
-        opts , args = getopt.getopt(sys.argv[1:], "rso:idt:", )
+        opts , args = getopt.getopt(sys.argv[1:], "rso:idt:l", )
     except getopt.GetoptError:
         print_usage()
         sys.exit(1)
@@ -102,6 +107,8 @@ if __name__ == "__main__" :
             displaypath = True
         elif opt == '-t' :
             tags.append(arg)
+        elif opt == '-l' :
+            mode = "list_tags"
         elif opt == "-i" :
             mode = "info"
         elif opt == '-o' :
@@ -141,6 +148,9 @@ if __name__ == "__main__" :
         print "current checksum of bookmark : " , checksum
         print "current version  of bookmark : " , version
         print "bookmark location : " , path
+    elif mode == "list_tags" :
+        taglist = findtags(parsed)
+        display_tag_list(taglist)
     elif len(args) > 0:
         result = {} 
         searchdata = parsed
