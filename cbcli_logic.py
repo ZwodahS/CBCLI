@@ -72,12 +72,12 @@ def tag_filter(data, taglist) :
     if len(taglist) == 0 :
         return data
     
-    newdata = {}
+    newdata = []
     for d in data :
         tokens = d["name"].split()
         for t in taglist :
             if "#"+t in tokens :
-                newdata[d["id"]] = d
+                newdata.append(d);
                 break
     return newdata
 
