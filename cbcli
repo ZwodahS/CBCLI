@@ -10,6 +10,7 @@ from cbcli_logic import stringsearch
 from cbcli_logic import cache
 from cbcli_logic import loadCache
 from cbcli_logic import tag_filter
+from cbcli_logic import tag_filterdict
 from cbcli_logic import findtags
 import color
 from regex import parallelmatch
@@ -161,7 +162,7 @@ if __name__ == "__main__" :
         display_results_str(result, args, displaypath)
     # regex mode, just search display
     elif len(tags) != 0  :
-        result = tag_filter(parsed, tags)
+        result = tag_filterdict(parsed, tags)
         display_results_str(result, args, displaypath)
     else :
         print_usage()
