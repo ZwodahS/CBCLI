@@ -1,6 +1,6 @@
 Chrome Bookmarks Command Line Interface (CBCLI)
 
-Provide a basic cmdline for searching chrome bookmarks and opening the links directly.
+Provide a basic cmdline for searching chrome bookmarks and opening the links directly from terminal.
 
 To search your bookmarks use
 
@@ -26,3 +26,4 @@ Possible extension to the project
     - Match certain keywords and move/duplicate them into a folder
 - Cache the parsed data, and use checksum to detect if there is changes. This will be useful only if the bookmarks get too big and parsing takes too long. For now, it really doesn't matter.
 
+Currently this only supports OSX but shouldn't be hard to add support for Windows/Linux.
