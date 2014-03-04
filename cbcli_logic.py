@@ -131,7 +131,7 @@ def createChild(data, parent):
 
 def parseRecursive(data, parent) :
     #if you are here, means you are a folder
-    name = data["name"]
+    name = data['name']
     output = []
     for child in data["children"] :
         if("children" in child) : # if the child has a children, means it is a folder
@@ -157,7 +157,9 @@ def parse(data) :
         # there are 2 values we don't want ( as of [ September 20, 2013 ] )
         # .1 meta_info
         # .2 synced
-        if(k != "meta_info" and k != "synced") :
+        # .3 sync_transaction_version
+        # in additional to that, in case new values are added, I will also make sure that it is a dictionary before parsing recursively
+        if(k != "meta_info" and k != "synced" and k != "sync_transaction_version" and isinstance(v, dict)) :
             l = l + parseRecursive(v, "root/"+k)    
     return (l, checksum, version)
 

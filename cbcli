@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 import os
 import json
 import sys
@@ -16,19 +16,19 @@ import color
 from regex import parallelmatch
 from regex import regmatch
 def print_usage():
-    print "Search Mode"
-    print "    cbcli [-d] -[r|s(default)] <search strings> [-t <tagname>]"
-    print "        r : regex mode"
-    print "        s : string mode" 
-    print "        t : search tag (#tagname) "
-    print "        d : print the path of the bookmark"
-    print "List Tags"
-    print "    cbcli -l"
-    print "Print bookmark meta information"
-    print "    cbcli -i"
-    print "Open Link"
-    print "    cbcli -o <number>"
-    print"         Use the number given from the last search results"
+    print("Search Mode")
+    print("    cbcli [-d] -[r|s(default)] <search strings> [-t <tagname>]")
+    print("        r : regex mode")
+    print("        s : string mode" )
+    print("        t : search tag (#tagname) ")
+    print("        d : print the path of the bookmark")
+    print("List Tags")
+    print("    cbcli -l")
+    print("Print bookmark meta information")
+    print("    cbcli -i")
+    print("Open Link")
+    print("    cbcli -o <number>")
+    print("         Use the number given from the last search results")
 
 # The function to color the name of the bookmark based on the string tokens
 # 
@@ -76,7 +76,7 @@ def display_results_str(result, args, displaypath):
         parent = ""
         if displaypath :
             parent = color.wrap_color(value["parent"]+"/", color.blue)
-        print color.wrap_color("["+str(i)+"]", color.yellow, True,False)  , parent , match_text, "-" , color.wrap_color(value["url"][:40] + "....", color.blue)
+        print(color.wrap_color("["+str(i)+"]", color.yellow, True,False)  , parent , match_text, "-" , color.wrap_color(value["url"][:40] + "....", color.blue))
         listresult.append(value)
         i+=1
     cache(listresult)
@@ -89,14 +89,14 @@ def display_results_regex(result, regex, displaypath) :
         parent = ""
         if displaypath :
             parent = color.wrap_color(value["parent"]+"/", color.blue)
-        print color.wrap_color("["+str(i)+"]", color.yellow, True,False)  , parent , match_text, "-" , color.wrap_color(value["url"][:40] + "....", color.blue)
+        print(color.wrap_color("["+str(i)+"]", color.yellow, True,False)  , parent , match_text, "-" , color.wrap_color(value["url"][:40] + "....", color.blue))
         listresult.append(value)
         i+=1
     cache(listresult)
 
 def display_tag_list(taglist) :
     for name, count in taglist.items() :
-        print name , "("+str(count)+")"
+        print(name , "("+str(count)+")")
 
 if __name__ == "__main__" :
     try :
@@ -126,7 +126,7 @@ if __name__ == "__main__" :
                 opennumber = int(arg)
                 mode = "open"
             except ValueError:
-                print "Invalid number"
+                print("Invalid number")
     # this is the path to the bookmarks on most OSX system.
     # This probably can be taken out into a config. 
     # It is also possible to write a function to let the user set their bookmark file
@@ -143,7 +143,7 @@ if __name__ == "__main__" :
     if mode == "open" :
         cachedResult = loadCache()
         if len(cachedResult) <= opennumber :
-            print "number not valid"
+            print("number not valid")
         else :
             openlink(cachedResult[opennumber])
     # if string mode, then we want to find the url that contains all the strings.
@@ -155,9 +155,9 @@ if __name__ == "__main__" :
         result = search(parsed, searchString)
         display_results_regex(result, searchString, displaypath)
     elif mode == "info" :
-        print "current checksum of bookmark : " , checksum
-        print "current version  of bookmark : " , version
-        print "bookmark location : " , path
+        print("current checksum of bookmark : " , checksum)
+        print("current version  of bookmark : " , version)
+        print("bookmark location : " , path)
     elif mode == "list_tags" :
         taglist = findtags(parsed)
         display_tag_list(taglist)
