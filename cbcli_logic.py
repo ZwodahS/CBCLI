@@ -9,8 +9,6 @@
 # .5 type   - I only saw 2 value so far, "url" and "folder"
 # .6 name   - The name of this bookmark/folder <-- possibly the 1 that we want to search
 # .7 url    - url to open.
-# this parse should return each object individually as a dict
-# with an additional attribute , the abs path to the bookmark.
 import re
 import os
 root = os.path.dirname(os.path.abspath(__file__))
@@ -117,10 +115,16 @@ def findtags(data) :
     return hashtags
 
 
-
+def has_folders(data, folders) :
+    if "parent" in data :
+        for f in folders :
+            if f in data["parent"] :
+                return True
+    return False
 
 ################ JSON parsing code ##############################
 
+# parent is a list, such that '/'.join(parent) gives use the absolute path to the child.
 def createChild(data, parent):
     childData = {}
     childData["name"] = data["name"]
@@ -129,25 +133,25 @@ def createChild(data, parent):
     childData["parent"] = parent
     return childData
 
+# this parse should return each object individually as a dict
+# with an additional attribute , the abs path to the bookmark.
 def parseRecursive(data, parent) :
     #if you are here, means you are a folder
     name = data['name']
+    current = list(parent)
+    current.append(name)
     output = []
     for child in data["children"] :
         if("children" in child) : # if the child has a children, means it is a folder
-            l = parseRecursive(child, parent+"/"+name)
+            l = parseRecursive(child, current)
             output += l
         else :
-            output.append(createChild(child, parent+"/"+name))
+            output.append(createChild(child, current))
     return output
 
 # parse the whole json file and return a list of url objects.
 # This is the main parse function
-# returns a list of dictionary with
-#   "name"   : for the name of the bookmark
-#   "url"    : url of the bookmark
-#   "id"     : id given to this by chrome
-#   "parent" : the parent of this bookmark, a.k.a. the directory path in the bookmark manager.
+# return a triplet (data, checksum, version)
 def parse(data) :
     checksum = data["checksum"] 
     version = data["version"]
@@ -160,6 +164,8 @@ def parse(data) :
         # .3 sync_transaction_version
         # in additional to that, in case new values are added, I will also make sure that it is a dictionary before parsing recursively
         if(k != "meta_info" and k != "synced" and k != "sync_transaction_version" and isinstance(v, dict)) :
-            l = l + parseRecursive(v, "root/"+k)    
+            path = ["root", k]
+            l = l + parseRecursive(v, path)    
     return (l, checksum, version)
+
 
